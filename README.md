@@ -17,7 +17,7 @@ python hello.py
 # Hello, DevOps!
 ```
 
-![GitHub repo screenshot](images/step1-repo.png)
+![GitHub repo screenshot](images/repo.png)
 
 ---
 
@@ -28,7 +28,7 @@ chmod +x scripts/sysinfo.sh
 ./scripts/sysinfo.sh
 ```
 
-![sysinfo.sh output](images/script.png.png)
+![sysinfo.sh output](images/script.png)
 
 ---
 
