@@ -40,7 +40,7 @@ docker run devops-intern-final
 # Hello, DevOps!
 ```
 
-![Docker run output](images/docker.png)
+![Docker run output](images/Docker.png)
 
 ---
 
