@@ -59,7 +59,7 @@ Workflow at `.github/workflows/ci.yml` runs `python hello.py` automatically on e
 - CI uses Python `3.11.9` via `actions/setup-python`, matching the exact version pinned in the `Dockerfile`, so a pass in CI reflects the same interpreter that ships in the container.
 
 ![GitHub Actions workflow — run history](images/github-actions-2.png)
-![GitHub Actions workflow — successful run logs](images/github-actions-3.png.png)
+![GitHub Actions workflow — successful run logs](images/github-actions-3.png)
 
 ---
 
