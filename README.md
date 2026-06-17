@@ -58,8 +58,8 @@ Workflow at `.github/workflows/ci.yml` runs `python hello.py` automatically on e
 - `actions/checkout` is pinned to a commit SHA (`34e1148...` = `v4.3.1`), not a floating tag, to prevent supply-chain risk from a tag being repointed.
 - CI uses Python `3.11.9` via `actions/setup-python`, matching the exact version pinned in the `Dockerfile`, so a pass in CI reflects the same interpreter that ships in the container.
 
-![GitHub Actions workflow — run history](images/cicd1.png)
-![GitHub Actions workflow — successful run logs](images/cicd2.png)
+![GitHub Actions workflow — run history](images/github-actions-2.png)
+![GitHub Actions workflow — successful run logs](images/github-actions-3.png.png)
 
 ---
 
@@ -82,7 +82,6 @@ nomad job status hello
 
 > Note: Nomad agent could not be started locally due to WSL port restrictions (`listen tcp 127.0.0.1:4647: operation not permitted`). The job file is included as required and was validated for syntax. The commands above will run as-is on a Linux host or VM with Nomad installed.
 
-![Nomad job file](images/nomad.png)
 
 ---
 
@@ -101,7 +100,7 @@ curl http://localhost:3100/ready
 # ready
 ```
 
-![Loki ready](images/loki-ready.png)
+![Loki ready](images/loki.png)
 
 ### Forward container logs to Loki
 
@@ -127,7 +126,7 @@ curl -G -s "http://localhost:3100/loki/api/v1/query_range" \
   --data-urlencode 'limit=20'
 ```
 
-![Loki query result via curl](images/loki-query.png)
+![Loki query result via curl](images/docker-loki-logs.png)
 
 Confirmed result from this query: `returned_lines=1`, `total_entries=1`, `status=200` — Loki received and is correctly serving back the forwarded log line.
 
@@ -147,10 +146,10 @@ In Grafana (`http://localhost:3000`, login `admin`/`admin`):
 2. URL: `http://loki:3100` (container name, not `localhost` — Grafana resolves it via the shared `loki-net` network)
 3. **Save & test**
 
-![Grafana data source connected](images/grafana-datasource.png)
+![Grafana data source connected](images/Grafana-Loki-Integration.png)
 
 4. **Explore → select Loki → run query** `{job="hello"}`
 
-![Grafana Explore showing log line](images/grafana-explore.png)
+![Grafana Explore showing log line](images/grafana-output.png)
 
 See `monitoring/loki_setup.txt` for the full command-by-command setup log.
