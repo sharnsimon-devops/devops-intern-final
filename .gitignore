@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Loki / local state
+*.db
+*.boltdb
+
+# Nomad
+*.nomad.var
+.terraform/
+
+# Docker
+*.log
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Secrets
+.env
+*.pem
+*.key

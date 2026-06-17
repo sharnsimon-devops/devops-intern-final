@@ -55,3 +55,84 @@ limits_config:
 
   curl http://localhost:3100/ready
   (response: ready)
+
+
+4. Forwarded container logs to Loki using the Docker Loki logging driver
+   (this is the actual log forwarding step, not just running Loki idle):
+
+  Installed the driver plugin (one-time setup):
+
+    docker plugin install grafana/loki-docker-driver:2.9.2 --alias loki --grant-all-permissions
+
+  Built the app image with a pinned tag:
+
+    docker build -t devops-intern-final:1.0 .
+
+  Ran the container with logs pointed at Loki:
+
+    docker run --name=hello \
+      --log-driver=loki \
+      --log-opt loki-url="http://localhost:3100/loki/api/v1/push" \
+      --log-opt loki-external-labels="job=hello" \
+      devops-intern-final:1.0
+
+  Every time the container runs, its stdout ("Hello, DevOps!") is pushed
+  to Loki under the label job="hello" via the logging driver, instead of
+  only going to the local Docker log driver.
+
+
+5. Command used to view logs (Loki HTTP API):
+
+  curl -G -s "http://localhost:3100/loki/api/v1/query_range" \
+    --data-urlencode 'query={job="hello"}' \
+    --data-urlencode 'limit=20'
+
+  Confirmed result: returned_lines=1, total_entries=1, status=200 —
+  Loki received and stored the log line and serves it back on query.
+
+
+6. Optional — connected Grafana for visual confirmation (not required by
+   the assessment, done as an extra verification step):
+
+  docker run -d --name=grafana -p 3000:3000 grafana/grafana:10.4.0
+
+  Created a shared Docker network so the two containers can resolve each
+  other by name (default bridge network does not support this):
+
+    docker network create loki-net
+    docker network connect loki-net loki
+    docker network connect loki-net grafana
+
+  Verified connectivity from inside the Grafana container:
+
+    docker exec grafana wget -qO- http://loki:3100/ready
+    (response: ready)
+
+  In Grafana UI (http://localhost:3000, admin/admin):
+    Connections > Data sources > Add data source > Loki
+    URL: http://loki:3100   <-- container name, NOT localhost, since
+                                  Grafana is itself running inside a
+                                  container and localhost would resolve
+                                  to Grafana's own container, not Loki's.
+    Save & test -> "Data source connected and labels found."
+
+  Then: Explore > select Loki > query {job="hello"} to view the log line.
+
+
+Note on Nomad integration:
+  nomad/hello.nomad includes a logging block configured to forward task
+  logs to Loki at http://localhost:3100/loki/api/v1/push using the same
+  loki-external-labels=job=hello convention, so logs from a Nomad-managed
+  allocation land in the same Loki stream as the manual docker run above.
+
+  The job also now includes a restart policy (3 attempts / 5m interval)
+  and an update block (max_parallel = 1, rolling) so the deployment is
+  resilient to task failure and avoids a full outage on redeploy.
+
+
+Note on CI hardening:
+  .github/workflows/ci.yml pins actions/checkout to a commit SHA
+  (34e114876b0b11c390a56381ad16ebd13914f8d5, tag v4.3.1) instead of the
+  floating @v4 tag, to avoid the tag being silently repointed to
+  different code. CI also installs Python 3.11.9 via actions/setup-python
+  to match the exact version pinned in the Dockerfile.

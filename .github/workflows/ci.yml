@@ -6,7 +6,12 @@ jobs:
   run:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Set up Python 3.11.9
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11.9"
 
       - name: Run hello.py
         run: python hello.py
